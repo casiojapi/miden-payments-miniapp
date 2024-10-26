@@ -1,0 +1,83 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+}
+.wallet-container {
+  background-color: #1e1e1e;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  padding: 20px;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.address-section {
+  display: flex;
+  justify-content: space-between;
+  width: 90%;
+  max-width: 600px;
+  color: #e7e7d8;
+}
+
+.address-text {
+  font-size: 1.2rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.copy-btn {
+  background-color: #ea4125;
+  color: #e7e7d8;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.copy-btn:hover {
+  background-color: #ff6347;
+}
+
+.greeting-section {
+  margin-top: 10px;
+  color: #e7e7d8;
+}
+
+.greeting-text {
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+.balance-section {
+  margin-top: 20px;
+}
+
+.balance-text {
+  font-size: 2rem;
+  color: #e7e7d8;
+}
+
+.button-section {
+  display: flex;
+  justify-content: space-between;
+  width: 80%;
+}
+
+.receive-btn,
+.send-btn {
+  background-color: #ea4125;
+  color: #e7e7d8;
+  border: none;
+  padding: 15px;
+  border-radius: 10px;
+  cursor: pointer;
+  width: 45%;
+}
+
+.receive-btn:hover,
+.send-btn:hover {
+  background-color: #ff6347;
+}
