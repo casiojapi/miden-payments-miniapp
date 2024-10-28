@@ -1,118 +1,132 @@
 import React, { useState, useEffect } from 'react';
 
 interface WalletInterfaceProps {
-	userId: string;
-	username: string;
 	address: string;
+	username: string;
 }
 
-export const WalletInterface: React.FC<WalletInterfaceProps> = ({ userId, username }) => {
+export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, username }) => {
 	const [balance, setBalance] = useState<string>('0 ETH');
 	const [notes, setNotes] = useState<any[]>([]);
-	const [receiverId, setReceiverId] = useState('');
+	const [receiverAddress, setReceiverAddress] = useState('');
 	const [amount, setAmount] = useState('');
 
 	useEffect(() => {
-		fetchAccountDetails();
-		fetchUserNotes();
+		fetchNotes();
+		fetchBalance();
 	}, []);
 
-	const fetchAccountDetails = async () => {
+	const fetchNotes = async () => {
 		try {
-			const response = await fetch(`https://miden-api-public-tx-mock.onrender.com/api/account/acc_${userId}`);
-			const data = await response.json();
-			setBalance(data.balance);
-		} catch (err) {
-			console.error('Error fetching account details:', err);
+			const userId = address.replace('0x', ''); // Strip the prefix
+			const response = await fetch(`https://miden-api-public-tx-mock.onrender.com/api/account/${userId}/notes`);
+
+			if (response.ok) {
+				const userNotes = await response.json();
+				setNotes(userNotes);
+			} else {
+				console.error('Failed to fetch notes:', response.status);
+			}
+		} catch (error) {
+			console.error('Error fetching notes:', error);
 		}
 	};
 
-	const fetchUserNotes = async () => {
+	const fetchBalance = async () => {
 		try {
-			const response = await fetch(`https://miden-api-public-tx-mock.onrender.com/api/account/${userId}/notes`);
-			const data = await response.json();
-			setNotes(data);
-		} catch (err) {
-			console.error('Error fetching notes:', err);
+			const userId = address.replace('0x', '');
+			const response = await fetch(`https://miden-api-public-tx-mock.onrender.com/api/account/${userId}`);
+
+			if (response.ok) {
+				const account = await response.json();
+				setBalance(account.balance);
+			} else {
+				console.error('Failed to fetch balance:', response.status);
+			}
+		} catch (error) {
+			console.error('Error fetching balance:', error);
 		}
 	};
 
 	const sendNote = async () => {
 		try {
-			await fetch('https://miden-api-public-tx-mock.onrender.com/api/notes/public/send', {
+			const senderId = address.replace('0x', '');
+			const receiverId = receiverAddress.replace('0x', '');
+
+			const response = await fetch('https://miden-api-public-tx-mock.onrender.com/api/notes/public/send', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					sender_id: `acc_${userId}`,
-					receiver_id: `acc_${receiverId}`,
-					amount,
-				}),
+				body: JSON.stringify({ sender_id: senderId, receiver_id: receiverId, amount }),
 			});
-			fetchAccountDetails(); // Refresh balance
-		} catch (err) {
-			console.error('Error sending note:', err);
+
+			if (response.ok) {
+				alert('Note sent successfully!');
+				fetchNotes(); // Refresh notes
+			} else {
+				console.error('Failed to send note:', response.status);
+			}
+		} catch (error) {
+			console.error('Error sending note:', error);
 		}
 	};
 
 	const consumeNote = async (noteId: string) => {
 		try {
-			await fetch('https://miden-api-public-tx-mock.onrender.com/api/notes/consume', {
+			const userId = address.replace('0x', '');
+			const response = await fetch('https://miden-api-public-tx-mock.onrender.com/api/notes/consume', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ account_id: `acc_${userId}`, note_id: noteId }),
+				body: JSON.stringify({ user_id: userId, note_id: noteId }),
 			});
-			fetchAccountDetails(); // Refresh balance
-			fetchUserNotes(); // Refresh notes list
-		} catch (err) {
-			console.error('Error consuming note:', err);
+
+			if (response.ok) {
+				alert('Note consumed successfully!');
+				fetchNotes(); // Refresh notes
+			} else {
+				console.error('Failed to consume note:', response.status);
+			}
+		} catch (error) {
+			console.error('Error consuming note:', error);
 		}
 	};
 
 	const copyToClipboard = () => {
-		navigator.clipboard.writeText(`acc_${userId}`);
-	};
-
-	const shareWithTelegram = () => {
-		const message = `Check out miden payments: t.me/miden_payment_bot/pay`;
-		const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(message)}`;
-		window.open(shareUrl, '_blank');
+		navigator.clipboard.writeText(address);
 	};
 
 	return (
 		<div className="wallet-container">
 			<div className="address-section">
-				<span className="address-text">{`Account: acc_${userId}`}</span>
+				<span className="address-text">{address}</span>
 				<button onClick={copyToClipboard} className="copy-btn">Copy</button>
 			</div>
 
 			<div className="greeting-section">
-				<p className="greeting-text">
-					Hi "@{username}". miden, best note-taking app ever.
-				</p>
+				<p>Hi "@{username}", miden, best note-taking app ever.</p>
 			</div>
 
 			<div className="balance-section">
-				<h2 className="balance-text">{balance}</h2>
+				<h2>{balance}</h2>
 			</div>
 
 			<div className="notes-section">
-				<h3>Your Notes</h3>
+				<h3>User Notes</h3>
 				<ul>
 					{notes.map((note) => (
 						<li key={note.note_id}>
-							{note.amount} ETH from {note.sender_id}
+							Note ID: {note.note_id}, Amount: {note.amount} ETH
 							<button onClick={() => consumeNote(note.note_id)}>Consume</button>
 						</li>
 					))}
 				</ul>
 			</div>
 
-			<div className="send-section">
+			<div className="send-note-section">
 				<input
 					type="text"
-					placeholder="Receiver ID"
-					value={receiverId}
-					onChange={(e) => setReceiverId(e.target.value)}
+					placeholder="Receiver Address"
+					value={receiverAddress}
+					onChange={(e) => setReceiverAddress(e.target.value)}
 				/>
 				<input
 					type="number"
@@ -122,10 +136,6 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ userId, userna
 				/>
 				<button onClick={sendNote}>Send Note</button>
 			</div>
-
-			<button className="share-btn" onClick={shareWithTelegram}>
-				Share on Telegram
-			</button>
 		</div>
 	);
 };
