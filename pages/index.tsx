@@ -7,8 +7,8 @@ export default function Home() {
 	const [userAddress, setUserAddress] = useState<string | null>(null);
 	const [username, setUsername] = useState<string | null>(null);
 
-	const handleAuthSuccess = (userId: number, tgUsername: string) => {
-		const address = `0x${userId.toString().padStart(20, '0')}`; // gen addr from userId 
+	const handleAuthSuccess = (userId: string, tgUsername: string) => {
+		const address = `0x${userId.padStart(20, '0')}`; // Generate address from userId
 		setUserAddress(address);
 		setUsername(tgUsername);
 		setIsAuthenticated(true);
@@ -19,7 +19,7 @@ export default function Home() {
 			{!isAuthenticated ? (
 				<TelegramAuth onAuthSuccess={handleAuthSuccess} />
 			) : (
-				<WalletInterface address={userAddress || '0x1234...abcd'} username={username || 'User'} />
+				<WalletInterface address={userAddress || '0x1234...abcd'} username={username || 'User'} userId={userAddress || '0x123'} />
 			)}
 		</div>
 	);
