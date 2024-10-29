@@ -24,12 +24,14 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 
 			if (response.ok) {
 				const userNotes = await response.json();
-				setNotes(userNotes);
+				setNotes(Array.isArray(userNotes) ? userNotes : []); // Ensure `notes` is always an array
 			} else {
 				console.error('Failed to fetch notes:', response.status);
+				setNotes([]); // Set notes to an empty array in case of failure
 			}
 		} catch (error) {
 			console.error('Error fetching notes:', error);
+			setNotes([]); // Set notes to an empty array if there's an error
 		}
 	};
 
@@ -72,13 +74,12 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 				alert('Note sent successfully!');
 				setReceiverInput('');
 				setAmount('');
-				fetchNotes();
-				fetchBalance();
+				await fetchNotes();
+				await fetchBalance();
 			} else {
 				console.error('Failed to send note:', response.status);
 			}
 		} catch (error) {
-			alert('error sending note');
 			console.error('Error sending note:', error);
 		} finally {
 			setIsLoading(false);
@@ -98,7 +99,7 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 			if (response.ok) {
 				alert('Note consumed successfully!');
 				setNotes((prevNotes) => prevNotes.filter((note) => note.note_id !== noteId));
-				fetchBalance();
+				await fetchBalance();
 			} else {
 				console.error('Failed to consume note:', response.status);
 			}
@@ -116,7 +117,7 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 
 	return (
 		<div className="wallet-container">
-			{isLoading && <p>loading...</p>} {/* Loading indicator */}
+			{isLoading && <p>Loading...</p>} {/* Loading indicator */}
 			<div className="address-section">
 				<span className="address-text">{address}</span>
 				<button onClick={copyToClipboard} className="copy-btn">Copy</button>
@@ -129,12 +130,16 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 			<div className="notes-section">
 				<h3>User Notes</h3>
 				<ul>
-					{notes.map((note) => (
-						<li key={note.note_id}>
-							Note ID: {note.note_id}, Amount: {note.amount} ETH
-							<button onClick={() => consumeNote(note.note_id)}>Consume</button>
-						</li>
-					))}
+					{notes.length > 0 ? (
+						notes.map((note) => (
+							<li key={note.note_id}>
+								Note ID: {note.note_id}, Amount: {note.amount} ETH
+								<button onClick={() => consumeNote(note.note_id)}>Consume</button>
+							</li>
+						))
+					) : (
+						<li>No notes available.</li>
+					)}
 				</ul>
 			</div>
 

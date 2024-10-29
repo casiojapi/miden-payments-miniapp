@@ -1,82 +1,33 @@
 @import url('https://fonts.googleapis.com/css2?family=General+Sans:wght@400;500;600&display=swap');
 
-.wallet-container {
-  position: relative;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-around;
-  padding: 20px;
-}
-
-.loader {
-  position: absolute;
-  top: 0;
-  width: 50px;
-  height: 50px;
-  border: 5px solid #e7e7d8;
-  border-top: 5px solid #723BD4;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-.sync-btn {
-  background-color: #723BD4;
-  color: #e7e7d8;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-top: 10px;
-}
-
-.sync-btn:hover {
-  background-color: #5a2ea8;
-}
 body {
   margin: 0;
-  padding: 0;
-  font-family: 'GeneralSans', sans-serif;
-  font-size: 17px;
-  line-height: 23.8px;
+  font-family: 'Generalsans', sans-serif;
   background-color: #1e1e1e;
   color: #e7e7d8;
-  letter-spacing: 0.4px;
 }
 
 .wallet-container {
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-around;
-  min-height: 100vh;
   padding: 20px;
-  background-color: #1e1e1e;
 }
 
 .address-section {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   width: 90%;
   max-width: 600px;
-  color: #e7e7d8;
   margin-bottom: 10px;
 }
 
 .address-text {
   font-size: 1.2rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  word-break: break-word;
 }
 
 .copy-btn {
@@ -86,89 +37,113 @@ body {
   padding: 10px 15px;
   border-radius: 5px;
   cursor: pointer;
-  font-weight: 500;
-  transition: background-color 0.3s ease-in-out;
+  transition: background-color 0.3s ease;
 }
 
 .copy-btn:hover {
-  background-color: #5e2ca8;
+  background-color: #5c2aa3;
 }
 
-.greeting-section {
-  margin-top: 10px;
-  color: #e7e7d8;
+.balance-section {
+  margin: 20px 0;
   text-align: center;
-}
-
-.greeting-text {
-  font-size: 1.2rem;
-  font-weight: 500;
 }
 
 .balance-section h2 {
   font-size: 2rem;
-  color: #e7e7d8;
-  margin-top: 20px;
-  font-weight: 500;
+  margin: 0;
+}
+
+.notes-section {
+  width: 90%;
+  max-width: 600px;
+  margin-top: 10px;
 }
 
 .notes-section h3 {
-  font-size: 1.5rem;
-  color: #723BD4;
   margin-bottom: 10px;
+  color: #e7e7d8;
+  font-weight: 600;
 }
 
 .notes-section ul {
   list-style: none;
   padding: 0;
+  margin: 0;
 }
 
 .notes-section li {
-  background-color: #71717A;
-  padding: 10px;
-  margin: 5px 0;
+  background-color: #2e2e2e;
+  border: 1px solid #71717A;
   border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 8px;
   display: flex;
   justify-content: space-between;
-}
-
-.send-note-section {
-  width: 80%;
-  max-width: 600px;
-  margin-top: 15px;
-}
-
-.send-note-section input {
-  width: 48%;
-  padding: 12px;
-  margin: 5px 0;
-  border-radius: 8px;
-  border: 1px solid #e7e7d8;
-  background-color: #1e1e1e;
+  align-items: center;
   color: #e7e7d8;
-  font-weight: 400;
 }
 
-.send-note-section input::placeholder {
-  color: #e7e7d8;
-  opacity: 0.7;
-}
-
-.send-note-section button {
-  width: 100%;
+.notes-section button {
   background-color: #723BD4;
   color: #e7e7d8;
   border: none;
-  padding: 12px;
-  border-radius: 8px;
+  padding: 5px 10px;
+  border-radius: 5px;
   cursor: pointer;
-  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.notes-section button:hover {
+  background-color: #5c2aa3;
+}
+
+.send-note-section {
+  width: 90%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.send-note-section input {
+  width: 100%;
+  padding: 15px;
+  font-size: 1rem;
+  border: 1px solid #71717A;
+  border-radius: 5px;
+  background-color: #2e2e2e;
+  color: #e7e7d8;
+  box-sizing: border-box;
+}
+
+.send-note-section input::placeholder {
+  color: #71717A;
+}
+
+.send-note-section button {
+  width: 100%; /* Same width as inputs */
+  background-color: #723BD4;
+  color: #e7e7d8;
+  border: none;
+  padding: 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 .send-note-section button:hover {
-  background-color: #5e2ca8;
+  background-color: #5c2aa3;
 }
 
-button {
-  transition: background-color 0.2s ease-in-out;
+.send-note-section button:disabled {
+  background-color: #444;
+  cursor: not-allowed;
+}
+
+.loading-indicator {
+  font-size: 1.2rem;
+  color: #e7e7d8;
+  margin-bottom: 10px;
+  text-align: center;
 }
