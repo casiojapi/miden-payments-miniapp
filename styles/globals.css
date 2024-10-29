@@ -1,29 +1,75 @@
-/* Global Styles */
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background-color: #1e1e1e;
-  color: #e7e7d8;
-}
+@import url('https://fonts.googleapis.com/css2?family=General+Sans:wght@400;500;600&display=swap');
 
-/* Wallet Interface Styles */
 .wallet-container {
-  background-color: #1e1e1e;
+  position: relative;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-around;
   padding: 20px;
-  font-family: 'Courier New', Courier, monospace;
 }
 
-/* Address Section */
+.loader {
+  position: absolute;
+  top: 0;
+  width: 50px;
+  height: 50px;
+  border: 5px solid #e7e7d8;
+  border-top: 5px solid #723BD4;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.sync-btn {
+  background-color: #723BD4;
+  color: #e7e7d8;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.sync-btn:hover {
+  background-color: #5a2ea8;
+}
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'GeneralSans', sans-serif;
+  font-size: 17px;
+  line-height: 23.8px;
+  background-color: #1e1e1e;
+  color: #e7e7d8;
+  letter-spacing: 0.4px;
+}
+
+.wallet-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  min-height: 100vh;
+  padding: 20px;
+  background-color: #1e1e1e;
+}
+
 .address-section {
   display: flex;
   justify-content: space-between;
   width: 90%;
   max-width: 600px;
+  color: #e7e7d8;
   margin-bottom: 10px;
 }
 
@@ -31,57 +77,45 @@ body {
   font-size: 1.2rem;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 80%;
-  color: #e7e7d8;
 }
 
 .copy-btn {
-  background-color: #ea4125;
-  color: #1e1e1e;
+  background-color: #723BD4;
+  color: #e7e7d8;
   border: none;
   padding: 10px 15px;
   border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  font-weight: 500;
+  transition: background-color 0.3s ease-in-out;
 }
 
 .copy-btn:hover {
-  background-color: #71717A;
+  background-color: #5e2ca8;
 }
 
-/* Greeting Section */
 .greeting-section {
   margin-top: 10px;
+  color: #e7e7d8;
   text-align: center;
 }
 
 .greeting-text {
-  font-size: 1.4rem;
-  color: #e7e7d8;
+  font-size: 1.2rem;
+  font-weight: 500;
 }
 
-/* Balance Section */
-.balance-section {
-  margin-top: 20px;
-}
-
-.balance-text {
+.balance-section h2 {
   font-size: 2rem;
-  font-weight: bold;
   color: #e7e7d8;
-}
-
-/* Notes Section */
-.notes-section {
-  width: 80%;
-  max-width: 600px;
   margin-top: 20px;
+  font-weight: 500;
 }
 
 .notes-section h3 {
+  font-size: 1.5rem;
+  color: #723BD4;
   margin-bottom: 10px;
-  color: #ea4125;
 }
 
 .notes-section ul {
@@ -91,59 +125,50 @@ body {
 
 .notes-section li {
   background-color: #71717A;
-  padding: 15px;
-  margin-bottom: 10px;
-  border-radius: 5px;
+  padding: 10px;
+  margin: 5px 0;
+  border-radius: 8px;
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  color: #1e1e1e;
 }
 
-.notes-section button {
-  background-color: #ea4125;
-  color: #e7e7d8;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.notes-section button:hover {
-  background-color: #1e1e1e;
-  color: #e7e7d8;
-}
-
-/* Send Note Section */
 .send-note-section {
   width: 80%;
   max-width: 600px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 20px;
+  margin-top: 15px;
 }
 
 .send-note-section input {
-  background-color: #71717A;
-  border: 1px solid #ea4125;
-  border-radius: 5px;
-  padding: 10px;
-  color: #1e1e1e;
-  outline: none;
+  width: 48%;
+  padding: 12px;
+  margin: 5px 0;
+  border-radius: 8px;
+  border: 1px solid #e7e7d8;
+  background-color: #1e1e1e;
+  color: #e7e7d8;
+  font-weight: 400;
+}
+
+.send-note-section input::placeholder {
+  color: #e7e7d8;
+  opacity: 0.7;
 }
 
 .send-note-section button {
-  background-color: #ea4125;
+  width: 100%;
+  background-color: #723BD4;
   color: #e7e7d8;
   border: none;
-  padding: 12px 15px;
-  border-radius: 5px;
+  padding: 12px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  font-weight: 500;
 }
 
 .send-note-section button:hover {
-  background-color: #71717A;
+  background-color: #5e2ca8;
+}
+
+button {
+  transition: background-color 0.2s ease-in-out;
 }
