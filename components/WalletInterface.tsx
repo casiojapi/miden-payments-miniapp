@@ -7,39 +7,20 @@ interface WalletInterfaceProps {
 
 export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, username }) => {
 	const [balance, setBalance] = useState<string>('0 ETH');
-	const [notes, setNotes] = useState<any[]>([]);
 	const [receiverInput, setReceiverInput] = useState('');
 	const [amount, setAmount] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
+	const [transactions, setTransactions] = useState<any[]>([]);
 
 	useEffect(() => {
-		fetchNotes();
 		fetchBalance();
+		fetchTransactionHistory();
 	}, []);
-
-	const fetchNotes = async () => {
-		try {
-			const userId = address.replace('0x', '');
-			const response = await fetch(`https://miden-api-public-tx-mock.onrender.com/api/account/${userId}/notes`);
-
-			if (response.ok) {
-				const userNotes = await response.json();
-				setNotes(Array.isArray(userNotes) ? userNotes : []); // Ensure `notes` is always an array
-			} else {
-				console.error('Failed to fetch notes:', response.status);
-				setNotes([]); // Set notes to an empty array in case of failure
-			}
-		} catch (error) {
-			console.error('Error fetching notes:', error);
-			setNotes([]); // Set notes to an empty array if there's an error
-		}
-	};
 
 	const fetchBalance = async () => {
 		try {
 			const userId = address.replace('0x', '');
-			const response = await fetch(`https://miden-api-public-tx-mock.onrender.com/api/account/${userId}`);
-
+			const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/account/${userId}`);
 			if (response.ok) {
 				const account = await response.json();
 				setBalance(account.balance);
@@ -51,7 +32,22 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 		}
 	};
 
-	const sendNote = async () => {
+	const fetchTransactionHistory = async () => {
+		try {
+			const userId = address.replace('0x', '');
+			const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/account/${userId}/transactions`);
+			if (response.ok) {
+				const data = await response.json();
+				setTransactions(Array.isArray(data.transactions) ? data.transactions : []);
+			} else {
+				console.error('Failed to fetch transaction history:', response.status);
+			}
+		} catch (error) {
+			console.error('Error fetching transaction history:', error);
+		}
+	};
+
+	const sendFunds = async () => {
 		const senderId = address.replace('0x', '');
 		const isUsername = receiverInput.startsWith('@');
 		const receiverUsername = isUsername ? receiverInput.substring(1) : null;
@@ -59,7 +55,8 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 
 		try {
 			setIsLoading(true);
-			const response = await fetch('https://miden-api-public-tx-mock.onrender.com/api/notes/public/send', {
+
+			const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/transactions/send`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
@@ -71,40 +68,20 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 			});
 
 			if (response.ok) {
-				alert('Note sent successfully!');
+				const responseData = await response.json();
+				alert('Funds sent successfully!');
 				setReceiverInput('');
 				setAmount('');
-				await fetchNotes();
 				await fetchBalance();
+				await fetchTransactionHistory();
 			} else {
-				console.error('Failed to send note:', response.status);
+				const errorText = await response.text();
+				console.error('Error sending funds:', errorText);
+				alert(`Error: ${errorText}`);
 			}
 		} catch (error) {
-			console.error('Error sending note:', error);
-		} finally {
-			setIsLoading(false);
-		}
-	};
-
-	const consumeNote = async (noteId: string) => {
-		const userId = address.replace('0x', '');
-		try {
-			setIsLoading(true);
-			const response = await fetch('https://miden-api-public-tx-mock.onrender.com/api/notes/consume', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ user_id: userId, note_id: noteId }),
-			});
-
-			if (response.ok) {
-				alert('Note consumed successfully!');
-				setNotes((prevNotes) => prevNotes.filter((note) => note.note_id !== noteId));
-				await fetchBalance();
-			} else {
-				console.error('Failed to consume note:', response.status);
-			}
-		} catch (error) {
-			console.error('Error consuming note:', error);
+			console.error('Error sending funds:', error);
+			alert('An unexpected error occurred while sending funds.');
 		} finally {
 			setIsLoading(false);
 		}
@@ -117,7 +94,7 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 
 	return (
 		<div className="wallet-container">
-			{isLoading && <p>Loading...</p>} {/* Loading indicator */}
+			{isLoading && <p>Loading...</p>}
 			<div className="address-section">
 				<span className="address-text">{address}</span>
 				<button onClick={copyToClipboard} className="copy-btn">Copy</button>
@@ -125,22 +102,6 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 
 			<div className="balance-section">
 				<h2>{balance}</h2>
-			</div>
-
-			<div className="notes-section">
-				<h3>User Notes</h3>
-				<ul>
-					{notes.length > 0 ? (
-						notes.map((note) => (
-							<li key={note.note_id}>
-								Note ID: {note.note_id}, Amount: {note.amount} ETH
-								<button onClick={() => consumeNote(note.note_id)}>Consume</button>
-							</li>
-						))
-					) : (
-						<li>No notes available.</li>
-					)}
-				</ul>
 			</div>
 
 			<div className="send-note-section">
@@ -156,9 +117,24 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 					value={amount}
 					onChange={(e) => setAmount(e.target.value)}
 				/>
-				<button onClick={sendNote} disabled={isLoading || !amount || !receiverInput}>
-					Send Note
+				<button onClick={sendFunds} disabled={isLoading || !amount || !receiverInput}>
+					Send Funds
 				</button>
+			</div>
+
+			<div className="transaction-history-section">
+				<h3>Transaction History</h3>
+				<ul>
+					{transactions.length > 0 ? (
+						transactions.map((tx) => (
+							<li key={tx.note_id}>
+								{tx.sender_id === address ? 'Sent' : 'Received'} {tx.amount} ETH {tx.sender_id === address ? 'to' : 'from'} {tx.sender_id === address ? tx.receiver_id : tx.sender_id} on {new Date(tx.timestamp).toLocaleString()}
+							</li>
+						))
+					) : (
+						<li>No transactions available.</li>
+					)}
+				</ul>
 			</div>
 		</div>
 	);

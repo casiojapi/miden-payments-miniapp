@@ -1,5 +1,3 @@
-'use client';
-
 import { useEffect, useState } from 'react';
 import { retrieveLaunchParams } from '@telegram-apps/sdk';
 
@@ -36,36 +34,44 @@ const TelegramAuth: React.FC<TelegramAuthProps> = ({ onAuthSuccess }) => {
 	}, []);
 
 	const handleAccountFetch = async (userId: string, username: string) => {
-		const response = await fetch(`https://miden-api-public-tx-mock.onrender.com/api/account/${userId}`);
+		try {
+			const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/account/${userId}`);
 
-		if (response.status === 404) {
-			await createAccount(userId, username);
-		} else if (response.ok) {
-			onAuthSuccess(userId, username);
-		} else {
-			setError('Unexpected error while fetching account.');
+			if (response.status === 404) {
+				await createAccount(userId, username);
+			} else if (response.ok) {
+				onAuthSuccess(userId, username);
+			} else {
+				setError('Unexpected error while fetching account.');
+			}
+		} catch {
+			setError('Error connecting to server.');
 		}
 	};
 
 	const createAccount = async (userId: string, username: string) => {
-		const response = await fetch('https://miden-api-public-tx-mock.onrender.com/api/account/create', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ user_id: userId, username }),
-		});
+		try {
+			const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/account/create`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ user_id: userId, username }),
+			});
 
-		if (response.ok) {
-			onAuthSuccess(userId, username);
-		} else {
+			if (response.ok) {
+				onAuthSuccess(userId, username);
+			} else {
+				setError('Error creating account.');
+			}
+		} catch {
 			setError('Error creating account.');
 		}
 	};
 
-	if (error) {
-		return <div className="bg-red-500 text-white p-4">{error}</div>;
-	}
-
-	return <div>Loading...</div>;
+	return error ? (
+		<div className="bg-red-500 text-white p-4">{error}</div>
+	) : (
+		<div>Loading...</div>
+	);
 };
 
 export default TelegramAuth;
