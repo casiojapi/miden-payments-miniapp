@@ -1,4 +1,58 @@
 @import url('https://fonts.googleapis.com/css2?family=General+Sans:wght@400;500;600&display=swap');
+
+.update-section {
+	margin: 15px 0;
+	text-align: center;
+	width: 100%;
+}
+
+.update-btn {
+	font-size: 0.9rem;
+	padding: 8px 16px;
+	color: #e0e0e0;
+	background-color: #5e3c7d; /* Miden purple or a darker variant */
+	border: none;
+	border-radius: 6px;
+	cursor: pointer;
+	transition: background-color 0.2s ease-in-out;
+}
+
+.update-btn:hover {
+	background-color: #3e2d5d; /* Darker purple on hover */
+}
+/* Container for Send Note Section */
+.send-note-section {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	position: relative;
+	margin-top: 20px;
+}
+
+/* Suggestions List Styling */
+.suggestions-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	position: absolute;
+	bottom: 150px; /* Adjust this to position above the input */
+	width: 100%;
+	background-color: #2d2d44; /* Dark background */
+	border: 1px solid #7b4ba0; /* Border color */
+	border-radius: 6px;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+	z-index: 10;
+}
+
+.suggestions-list li {
+	padding: 8px 10px;
+	cursor: pointer;
+	color: #e5e5f7;
+}
+
+.suggestions-list li:hover {
+	background-color: #3d3d55; /* Hover color */
+}
 /* General container styling */
 .wallet-container {
 	display: flex;
@@ -7,7 +61,7 @@
 	padding: 20px;
 	max-width: 500px;
 	margin: auto;
-	background-color: rgba(25, 25, 50, 0.9); /* Opaque night-like background */
+	background-color: rgba(10, 10, 20, 0.9); 
 	border-radius: 12px;
 	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
 	font-family: 'General Sans', sans-serif;
@@ -17,14 +71,15 @@
 .address-section {
 	display: flex;
 	align-items: center;
-	margin-bottom: 15px;
+	margin-top: 1em;
+	margin-bottom: 4em;
 	width: 100%;
 	justify-content: space-between;
 }
 
 .address-text {
-	font-size: 0.9rem;
-	color: #d1c4e9; /* Light purple for readability */
+	font-size: 1rem;
+	color: #d1c4e9; 
 	font-weight: 500;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -36,22 +91,23 @@
 	padding: 8px 16px;
 	border: none;
 	color: #e0e0e0;
-	background-color: #7b4ba0; /* Miden purple */
+	background-color: #7b4ba0; 
 	border-radius: 6px;
 	cursor: pointer;
 	transition: background-color 0.2s ease-in-out;
 }
 
 .copy-btn:hover {
-	background-color: #5e3c7d; /* Darker shade on hover */
+	background-color: #5e3c7d;
 }
 
 /* Balance Section */
 .balance-section {
 	margin: 20px 0;
+	margin-bottom: 3.5em;
 	text-align: center;
 	font-size: 1.5rem;
-	color: #e5e5f7; /* Light color for contrast */
+	color: #e5e5f7;
 }
 
 /* Send Note Section */
@@ -65,32 +121,37 @@
 	font-size: 1rem;
 	padding: 10px;
 	margin: 5px 0;
-	border: 1px solid #7b4ba0; /* Miden purple */
+	border: none;
 	border-radius: 6px;
-	background-color: #2d2d44; /* Dark input background */
-	color: #e5e5f7; /* Light input text color */
+	background-color: rgba(60, 60, 80, 0.4); 
+	color: #e5e5f7;
 	outline: none;
-	transition: border-color 0.2s ease-in-out;
 }
 
-.send-note-section input:focus {
-	border-color: #d1c4e9; /* Light purple on focus */
-}
-
+/* Send Button */
 .send-note-section button {
 	padding: 10px;
 	font-size: 1rem;
 	color: white;
 	background-color: #7b4ba0; /* Miden purple */
-	border: none;
+	border: 1px solid #7b4ba0; /* White border */
 	border-radius: 6px;
 	margin-top: 10px;
 	cursor: pointer;
 	transition: background-color 0.3s ease-in-out;
 }
+/* Amount Input Field - Removing up/down arrows */
+.send-note-section input[type="number"]::-webkit-outer-spin-button,
+.send-note-section input[type="number"]::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
 
+.send-note-section input[type="number"] {
+	-moz-appearance: textfield; /* Firefox */
+}
 .send-note-section button:hover {
-	background-color: #5e3c7d; /* Darker purple on hover */
+	background-color: #5e3c7d;
 }
 
 /* Transaction History Section */

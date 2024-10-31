@@ -12,10 +12,45 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 	const [isLoading, setIsLoading] = useState(false);
 	const [transactions, setTransactions] = useState<any[]>([]);
 
+	// suggestions
+	const [usernames, setUsernames] = useState<string[]>([]); // All usernames
+	const [suggestions, setSuggestions] = useState<string[]>([]); // Filtered suggestions
+
 	useEffect(() => {
 		fetchBalance();
 		fetchTransactionHistory();
+		fetchUsernames(); // Fetch all usernames
 	}, []);
+
+	// Function to fetch all usernames
+	const fetchUsernames = async () => {
+		try {
+			const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/usernames`);
+			if (response.ok) {
+				const data = await response.json();
+				setUsernames(data);
+			} else {
+				console.error('Failed to fetch usernames:', response.status);
+			}
+		} catch (error) {
+			console.error('Error fetching usernames:', error);
+		}
+	};
+
+	const handleReceiverInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const inputValue = e.target.value;
+		setReceiverInput(inputValue);
+
+		// Show suggestions only if input starts with "@" and has at least one additional character
+		if (inputValue.startsWith('@') && inputValue.length > 1) {
+			const filteredSuggestions = usernames.filter((username) =>
+				username.toLowerCase().startsWith(inputValue.slice(1).toLowerCase())
+			);
+			setSuggestions(filteredSuggestions);
+		} else {
+			setSuggestions([]); // Clear suggestions if condition isn’t met
+		}
+	};
 
 	const fetchBalance = async () => {
 		try {
@@ -92,6 +127,13 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 		alert('Address copied to clipboard!');
 	};
 
+	const handleUpdate = async () => {
+		setIsLoading(true);
+		await fetchBalance();
+		await fetchTransactionHistory();
+		setIsLoading(false);
+	};
+
 	return (
 		<div className="wallet-container">
 			{isLoading && <p>Loading...</p>}
@@ -104,13 +146,37 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 				<h2>{balance}</h2>
 			</div>
 
+			<div className="update-section">
+				<button onClick={handleUpdate} className="update-btn">
+					sync
+				</button>
+			</div>
+
 			<div className="send-note-section">
 				<input
 					type="text"
 					placeholder="Receiver Address or @username"
 					value={receiverInput}
-					onChange={(e) => setReceiverInput(e.target.value)}
+					onChange={handleReceiverInputChange}
 				/>
+
+				{/* Suggestions Dropdown */}
+				{suggestions.length > 0 && (
+					<ul className="suggestions-list">
+						{suggestions.map((suggestion, index) => (
+							<li
+								key={index}
+								onClick={() => {
+									setReceiverInput(`@${suggestion}`);
+									setSuggestions([]); // Clear suggestions after selection
+								}}
+							>
+								@{suggestion}
+							</li>
+						))}
+					</ul>
+				)}
+
 				<input
 					type="number"
 					placeholder="Amount"
