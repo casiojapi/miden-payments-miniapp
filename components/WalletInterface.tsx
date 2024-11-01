@@ -203,7 +203,7 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 								className={`transaction-box ${tx?.sender_id === address ? 'sent' : 'received'}`}
 							>
 								{tx?.sender_id === address ? 'Sent' : 'Received'} {tx?.amount} ETH{' '}
-								{tx?.sender_id === address ? 'to' : 'from'} {tx?.sender_id === address ? `tx?.receiver_id}` : `tx?.sender_id}`} on{' '}
+								{tx?.sender_id === address ? 'to' : 'from'} {tx?.sender_id === address ? tx?.receiver_id : tx?.sender_id} on{' '}
 								{tx?.timestamp.toLocaleString()}
 							</div>
 						))
@@ -211,6 +211,8 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 						<div>No transactions available.</div>
 					)}
 				</div>
+
+
 			</div>
 		</div>
 	);
