@@ -8,6 +8,8 @@ interface TelegramAuthProps {
 declare global {
 	interface Window {
 		Telegram: any;
+		TelegramProxy: any;
+		TelegramGameProxy: any;
 	}
 }
 

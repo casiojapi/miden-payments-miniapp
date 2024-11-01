@@ -22,7 +22,7 @@ export function useTelegramInitData(botToken: string): InitData | null {
 		const tg = window.Telegram?.WebApp;
 
 		if (tg) {
-			const userData = tg.initDataUnsafe;
+			const userData = tg?.initDataUnsafe;
 
 			setInitData(userData);
 		}

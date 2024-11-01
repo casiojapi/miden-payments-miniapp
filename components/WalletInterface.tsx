@@ -1,25 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
+import { useFetchAccount } from '../hooks/useFetchAccount';
+import { useQueryClient } from '@tanstack/react-query';
+import { useTransactionHistory } from '../hooks/useTransactionHistory';
 
 interface WalletInterfaceProps {
 	address: string;
 	username: string;
 }
 
+
 export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, username }) => {
 	const [balance, setBalance] = useState<string>('0 ETH');
 	const [receiverInput, setReceiverInput] = useState('');
 	const [amount, setAmount] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
-	const [transactions, setTransactions] = useState<any[]>([]);
 
 	// suggestions
 	const [usernames, setUsernames] = useState<string[]>([]); // All usernames
 	const [suggestions, setSuggestions] = useState<string[]>([]); // Filtered suggestions
 
+	const queryClient = useQueryClient();
+	const account = useFetchAccount({ address });
+	const txHistory = useTransactionHistory({ address });
+
 	useEffect(() => {
-		fetchBalance();
-		fetchTransactionHistory();
-		fetchUsernames(); // Fetch all usernames
+		fetchUsernames();
 	}, []);
 
 	// Function to fetch all usernames
@@ -42,7 +47,7 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 		setReceiverInput(inputValue);
 
 		// Show suggestions only if input starts with "@" and has at least one additional character
-		if (inputValue.startsWith('@') && inputValue.length > 1) {
+		if (inputValue.startsWith('@') && inputValue.length > 0) {
 			const filteredSuggestions = usernames.filter((username) =>
 				username.toLowerCase().startsWith(inputValue.slice(1).toLowerCase())
 			);
@@ -52,35 +57,32 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 		}
 	};
 
-	const fetchBalance = async () => {
-		try {
-			const userId = address.replace('0x', '');
-			const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/account/${userId}`);
-			if (response.ok) {
-				const account = await response.json();
-				setBalance(account.balance);
-			} else {
-				console.error('Failed to fetch balance:', response.status);
-			}
-		} catch (error) {
-			console.error('Error fetching balance:', error);
-		}
-	};
+	// const fetchBalance = async () => {
+	// 	try {
+	// 		const userId = address.replace('0x', '');
+	// 		const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/account/${userId}`);
+	// 		if (response.ok) {
+	// 			const account = await response.json();
+	// 			setBalance(account.balance);
+	// 		} else {
+	// 			console.error('Failed to fetch balance:', response.status); } } catch (error) {
+	// 		console.error('Error fetching balance:', error);
+	// 	}
+	// };
 
-	const fetchTransactionHistory = async () => {
-		try {
-			const userId = address.replace('0x', '');
-			const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/account/${userId}/transactions`);
-			if (response.ok) {
-				const data = await response.json();
-				setTransactions(Array.isArray(data.transactions) ? data.transactions : []);
-			} else {
-				console.error('Failed to fetch transaction history:', response.status);
-			}
-		} catch (error) {
-			console.error('Error fetching transaction history:', error);
-		}
-	};
+	// 	try {
+	// 		const userId = address.replace('0x', '');
+	// 		const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/account/${userId}/transactions`);
+	// 		if (response.ok) {
+	// 			const data = await response.json();
+	// 			setTransactions(Array.isArray(data.transactions) ? data.transactions.reverse() : []);
+	// 		} else {
+	// 			console.error('Failed to fetch transaction history:', response.status);
+	// 		}
+	// 	} catch (error) {
+	// 		console.error('Error fetching transaction history:', error);
+	// 	}
+	// };
 
 	const sendFunds = async () => {
 		const senderId = address.replace('0x', '');
@@ -107,8 +109,8 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 				alert('Funds sent successfully!');
 				setReceiverInput('');
 				setAmount('');
-				await fetchBalance();
-				await fetchTransactionHistory();
+				await queryClient.invalidateQueries();
+				//await fetchTransactionHistory();
 			} else {
 				const errorText = await response.text();
 				console.error('Error sending funds:', errorText);
@@ -129,8 +131,9 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 
 	const handleUpdate = async () => {
 		setIsLoading(true);
-		await fetchBalance();
-		await fetchTransactionHistory();
+		//await fetchBalance();
+		await queryClient.invalidateQueries();
+		//await fetchTransactionHistory();
 		setIsLoading(false);
 	};
 
@@ -143,7 +146,8 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 			</div>
 
 			<div className="balance-section">
-				<h2>{balance}</h2>
+				{account.isLoading ? <>loading...</> :
+					<h2>{account?.data?.balance}</h2>}
 			</div>
 
 			<div className="update-section">
@@ -190,17 +194,23 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 
 			<div className="transaction-history-section">
 				<h3>Transaction History</h3>
-				<ul>
-					{transactions.length > 0 ? (
-						transactions.map((tx) => (
-							<li key={tx.note_id}>
-								{tx.sender_id === address ? 'Sent' : 'Received'} {tx.amount} ETH {tx.sender_id === address ? 'to' : 'from'} {tx.sender_id === address ? tx.receiver_id : tx.sender_id} on {new Date(tx.timestamp).toLocaleString()}
-							</li>
+				<div className="transaction-list">
+					{txHistory?.data?.transactions?.length &&
+						txHistory?.data?.transactions?.length > 0 ? (
+						txHistory.data?.transactions?.map((tx) => (
+							<div
+								key={tx?.transaction_id}
+								className={`transaction-box ${tx?.sender_id === address ? 'sent' : 'received'}`}
+							>
+								{tx?.sender_id === address ? 'Sent' : 'Received'} {tx?.amount} ETH{' '}
+								{tx?.sender_id === address ? 'to' : 'from'} {tx?.sender_id === address ? `tx?.receiver_id}` : `tx?.sender_id}`} on{' '}
+								{tx?.timestamp.toLocaleString()}
+							</div>
 						))
 					) : (
-						<li>No transactions available.</li>
+						<div>No transactions available.</div>
 					)}
-				</ul>
+				</div>
 			</div>
 		</div>
 	);

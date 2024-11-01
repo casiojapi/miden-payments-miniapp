@@ -161,23 +161,36 @@
 }
 
 .transaction-history-section h3 {
-	color: #d1c4e9; /* Light purple */
+	color: #d1c4e9;
 	font-size: 1.2rem;
 	margin-bottom: 10px;
 }
 
-.transaction-history-section ul {
-	list-style: none;
-	padding: 0;
+/* Container for transaction items */
+.transaction-list {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
 }
 
-.transaction-history-section li {
-	font-size: 0.9rem;
+/* Transaction Box Styling */
+.transaction-box {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
 	padding: 12px;
-	background-color: #2d2d44; /* Dark background */
-	border: 1px solid #7b4ba0; /* Miden purple */
 	border-radius: 6px;
-	margin-bottom: 8px;
-	color: #e5e5f7; /* Light color for text */
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+	font-size: 0.9rem;
+	background-color: #2d2d44; /* Default background */
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+	color: #e5e5f7;
+}
+
+/* Sent and Received Styling */
+.transaction-box.sent {
+	background-color: rgba(255, 0, 0, 0.1); /* Light red tint for sent transactions */
+}
+
+.transaction-box.received {
+	background-color: rgba(0, 255, 0, 0.1); /* Light green tint for received transactions */
 }
