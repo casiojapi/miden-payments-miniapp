@@ -4,37 +4,35 @@ import { z } from 'zod';
 const TxHistory = z.object({
 	transactions: z.array(
 		z.object({
-			transaction_id: z.string(),
-			sender_id: z.string(),
-			receiver_id: z.string(),
-			amount: z.string(),
+			note_id: z.string(),
+			acc_sender: z.string(),
+			acc_recipient: z.string(),
+			acc_recipient_user_id: z.string(),
+			faucet: z.string(),
+			value: z.string(),
 			timestamp: z.coerce.date(),
+			transaction_type: z.string(),
 		}).nullish()
 	)
 }
 );
 
-export const useTransactionHistory = (props: { address: string }) => {
-	const { address } = props;
-	const userId = address.replace('0x', '');
+export const useTransactionHistory = (props: { username: string }) => {
+	const { username } = props;
 
 	return useQuery({
-		enabled: !!address,
-		queryKey: ["useTransactionHistory", userId],
+		enabled: !!username,
+		queryKey: ["useTransactionHistory", username],
 		refetchInterval: 5000,
 		refetchIntervalInBackground: true,
 		queryFn: async () => {
-
-			const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/account/${userId}/transactions`);
+			const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/account/${username}/transactions`);
 			if (!response.ok) {
-				throw new Error(`Error fetching account transactions history: ${response.statusText}`);
+				throw new Error(`Error fetching transaction history: ${response.statusText}`);
 			}
 
 			const data = await response.json();
-			console.log("Response data:", data);
-
 			return TxHistory.parse(data);
 		},
 	});
 };
-

@@ -56,8 +56,9 @@ const TelegramAuth: React.FC<TelegramAuthProps> = ({ onAuthSuccess }) => {
 
 	const handleAccountFetch = async (userId: string, username: string) => {
 		try {
-			const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/account/${userId}`);
-			if (response.status === 404) {
+			const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/account/${username}/info`);
+			console.log("handle account fetch response: ", response);
+			if (response.status === 500) {
 				await createAccount(userId, username);
 			} else if (response.ok) {
 				onAuthSuccess(userId, username);
@@ -74,7 +75,7 @@ const TelegramAuth: React.FC<TelegramAuthProps> = ({ onAuthSuccess }) => {
 			const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/account/create`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ user_id: userId, username }),
+				body: JSON.stringify({ username }),
 			});
 			if (response.ok) {
 				onAuthSuccess(userId, username);
