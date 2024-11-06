@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useFetchAccount } from "../hooks/useFetchAccount";
+import { useFetchUsernames } from "../hooks/useUsernames";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTransactionHistory } from "../hooks/useTransactionHistory";
 
@@ -13,10 +14,12 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 	const [amount, setAmount] = useState("");
 	const [isFunding, setIsFunding] = useState(false);
 	const [isSending, setIsSending] = useState(false);
+	const [suggestions, setSuggestions] = useState<string[]>([]);
 
 	const queryClient = useQueryClient();
 	const { data: account, refetch: refetchAccount } = useFetchAccount({ username });
 	const { data: txHistory, refetch: refetchTransactionHistory } = useTransactionHistory({ username });
+	const { data: usernames = [] } = useFetchUsernames(); // Fetch usernames with the new hook
 
 	useEffect(() => {
 		if (account?.balance && account.balance !== "0 ETH") {
@@ -37,27 +40,45 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 	};
 
 	const sendFunds = async () => {
-		if (!receiverInput.startsWith("@") || !amount) return;
+		const isUsername = receiverInput.startsWith('@');
+		const receiverUsername = isUsername ? receiverInput.substring(1) : null;
 
-		const receiverUsername = receiverInput.slice(1); // remove "@" prefix
+		// Initial alert when the user initiates the send
+		alert('Sending funds...');
+
 		try {
 			setIsSending(true);
-			const response = await fetch(
-				`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/account/${username}/note/to/${receiverUsername}/asset/${amount}`
-			);
-			if (response.ok) {
-				alert("Funds sent successfully!");
-				setReceiverInput("");
-				setAmount("");
-				refetchAccount();
-				refetchTransactionHistory();
-			} else {
-				alert("Failed to send funds.");
+			if (receiverUsername) {
+				const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/account/${username}/note/to/${receiverUsername}/asset/${amount}`);
+				if (response.ok) {
+					alert('Funds sent successfully!');
+					setReceiverInput('');
+					setAmount('');
+					handleUpdate(); // Refresh account and transactions
+				} else {
+					const errorText = await response.text();
+					alert(`Error: ${errorText}`);
+				}
 			}
-		} catch {
-			alert("An error occurred while sending funds.");
+		} catch (error) {
+			alert('An unexpected error occurred while sending funds.');
+			console.error(error);
 		} finally {
 			setIsSending(false);
+		}
+	};
+
+	const handleReceiverInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const inputValue = e.target.value;
+		setReceiverInput(inputValue);
+
+		if (inputValue.startsWith('@') && inputValue.length > 0) {
+			const filteredSuggestions = usernames.filter((name: string) =>
+				name.toLowerCase().startsWith(inputValue.slice(1).toLowerCase())
+			);
+			setSuggestions(filteredSuggestions);
+		} else {
+			setSuggestions([]); // Clear suggestions if condition isn’t met
 		}
 	};
 
@@ -95,8 +116,25 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 					type="text"
 					placeholder="Receiver Address or @username"
 					value={receiverInput}
-					onChange={(e) => setReceiverInput(e.target.value)}
+					onChange={handleReceiverInputChange}
 				/>
+
+				{suggestions.length > 0 && (
+					<ul className="suggestions-list">
+						{suggestions.map((suggestion, index) => (
+							<li
+								key={index}
+								onClick={() => {
+									setReceiverInput(`@${suggestion}`);
+									setSuggestions([]);
+								}}
+							>
+								@{suggestion}
+							</li>
+						))}
+					</ul>
+				)}
+
 				<input
 					type="number"
 					placeholder="Amount"
@@ -104,20 +142,28 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 					onChange={(e) => setAmount(e.target.value)}
 				/>
 				<button onClick={sendFunds} disabled={!amount || !receiverInput || isSending}>
-					Send Funds
+					{isSending ? "Sending..." : "Send Funds"}
 				</button>
 			</div>
 
 			<div className="transaction-history-section">
 				<h3>Transaction History</h3>
 				{txHistory?.transactions?.length ? (
-					txHistory.transactions.map((tx, idx) => (
-						<div key={tx?.note_id || idx} className={`transaction-box ${tx?.acc_sender === address ? "sent" : "received"}`}>
-							{tx?.acc_sender === address ? "Sent" : "Received"} {tx?.value} ETH{" "}
-							{tx?.acc_sender === address ? "to" : "from"}{" "}
-							{tx?.acc_sender === address ? tx?.acc_recipient : tx?.acc_sender} on {new Date(tx?.timestamp || "").toLocaleString()}
-						</div>
-					))
+					// Use slice to create a new array, then reverse the copy without mutating the original
+					txHistory.transactions.slice().reverse().map((tx, idx) => {
+						// Check if timestamp is valid, and then convert it
+						const date = tx?.timestamp
+							? new Date(parseInt(tx.timestamp) * 1000).toLocaleString()
+							: "Invalid date";
+
+						return (
+							<div key={tx?.note_id || idx} className={`transaction-box ${tx?.transaction_type === "input" ? "received" : "sent"}`}>
+								{tx?.transaction_type === "input" ? "Received" : "Sent"} {tx?.value} ETH{" "}
+								{tx?.transaction_type === "input" ? "from" : "to"}{" "}
+								{tx?.transaction_type === "input" ? tx?.acc_sender : tx?.acc_recipient} on {date}
+							</div>
+						);
+					})
 				) : (
 					<p>No transactions available.</p>
 				)}

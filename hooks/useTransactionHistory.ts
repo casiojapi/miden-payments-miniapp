@@ -5,8 +5,11 @@ const Transaction = z.object({
 	note_id: z.string().nullish(),
 	acc_sender: z.string().nullish(),
 	acc_recipient: z.string().nullish(),
+	acc_recipient_user_id: z.string().nullish(),
+	faucet: z.string().nullish(),
 	value: z.string().nullish(),
 	timestamp: z.string().nullish(),
+	transaction_type: z.string().nullish(),
 });
 
 const TransactionHistory = z.object({
