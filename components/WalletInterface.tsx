@@ -5,11 +5,10 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useTransactionHistory } from "../hooks/useTransactionHistory";
 
 interface WalletInterfaceProps {
-	address: string;
 	username: string;
 }
 
-export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, username }) => {
+export const WalletInterface: React.FC<WalletInterfaceProps> = ({ username }) => {
 	const [receiverInput, setReceiverInput] = useState("");
 	const [amount, setAmount] = useState("");
 	const [isFunding, setIsFunding] = useState(false);
@@ -19,7 +18,7 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 	const queryClient = useQueryClient();
 	const { data: account, refetch: refetchAccount } = useFetchAccount({ username });
 	const { data: txHistory, refetch: refetchTransactionHistory } = useTransactionHistory({ username });
-	const { data: usernames = [] } = useFetchUsernames(); // Fetch usernames with the new hook
+	const { data: usernames = [] } = useFetchUsernames();
 
 	useEffect(() => {
 		if (account?.balance && account.balance !== "0 ETH") {
@@ -31,7 +30,7 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 		try {
 			setIsFunding(true);
 			await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/account/${username}/faucet`);
-			refetchAccount(); // Trigger an account refetch after faucet
+			refetchAccount();
 		} catch (error) {
 			alert("Faucet funding failed. Please try again.");
 		} finally {
@@ -43,9 +42,7 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 		const isUsername = receiverInput.startsWith('@');
 		const receiverUsername = isUsername ? receiverInput.substring(1) : null;
 
-		// Initial alert when the user initiates the send
 		alert('Sending funds...');
-
 		try {
 			setIsSending(true);
 			if (receiverUsername) {
@@ -54,7 +51,7 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 					alert('Funds sent successfully!');
 					setReceiverInput('');
 					setAmount('');
-					handleUpdate(); // Refresh account and transactions
+					handleUpdate();
 				} else {
 					const errorText = await response.text();
 					alert(`Error: ${errorText}`);
@@ -78,13 +75,17 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 			);
 			setSuggestions(filteredSuggestions);
 		} else {
-			setSuggestions([]); // Clear suggestions if condition isn’t met
+			setSuggestions([]);
 		}
 	};
 
 	const copyToClipboard = () => {
-		navigator.clipboard.writeText(address);
-		alert("Address copied to clipboard!");
+		if (account?.address) {
+			navigator.clipboard.writeText(account.address);
+			alert("Address copied to clipboard!");
+		} else {
+			alert("No address found to copy.");
+		}
 	};
 
 	const handleUpdate = async () => {
@@ -95,7 +96,7 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 	return (
 		<div className="wallet-container">
 			<div className="address-section">
-				<span className="address-text">{address}</span>
+				<span className="address-text">{account?.address || "Loading address..."}</span>
 				<button onClick={copyToClipboard} className="copy-btn">
 					Copy
 				</button>
@@ -149,9 +150,7 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 			<div className="transaction-history-section">
 				<h3>Transaction History</h3>
 				{txHistory?.transactions?.length ? (
-					// Use slice to create a new array, then reverse the copy without mutating the original
 					txHistory.transactions.slice().reverse().map((tx, idx) => {
-						// Check if timestamp is valid, and then convert it
 						const date = tx?.timestamp
 							? new Date(parseInt(tx.timestamp) * 1000).toLocaleString()
 							: "Invalid date";

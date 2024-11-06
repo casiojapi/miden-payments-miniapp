@@ -2,9 +2,9 @@ import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 
 const Account = z.object({
-	username: z.string().nullish(),
+	address: z.string().nullish(),
 	balance: z.string().nullish(),
-	account: z.string().nullish(),
+	username: z.string().nullish(),
 });
 
 export const useFetchAccount = ({ username }: { username: string }) => {
