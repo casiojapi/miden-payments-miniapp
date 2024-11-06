@@ -18,25 +18,25 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 	const [suggestions, setSuggestions] = useState<string[]>([]);
 
 	const queryClient = useQueryClient();
-	const { data: account, refetch: refetchAccount } = useFetchAccount({ username });
-	const { data: txHistory, refetch: refetchTransactionHistory } = useTransactionHistory({ username });
+	const { data: account, refetch: refetchAccount } = useFetchAccount({ username }); // disable auto-fetch
+	const { data: txHistory, refetch: refetchTransactionHistory } = useTransactionHistory({ username }); // disable auto-fetch
 	const { data: usernames = [] } = useFetchUsernames();
 
-	useEffect(() => {
-		if (account?.balance && account.balance !== "0 ETH") {
-			setIsFunding(false);
-		}
-	}, [account?.balance]);
+	// Sync data manually
+	const syncData = async () => {
+		toast.info("Syncing data...");
+		await refetchAccount();
+		await refetchTransactionHistory();
+		toast.success("Data synced!");
+	};
 
 	const faucetFund = async () => {
 		try {
 			setIsFunding(true);
-
 			toast.success("Faucet funding requested...");
 			await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/account/${username}/faucet`);
-
 			toast.success("Faucet funding received!");
-			refetchAccount();
+			await syncData();
 		} catch (error) {
 			toast.error("Faucet funding failed. Please try again.");
 		} finally {
@@ -57,6 +57,7 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 					toast.success('Funds sent successfully!');
 					setReceiverInput('');
 					setAmount('');
+					await syncData();
 				} else {
 					const errorText = await response.text();
 					toast.error(`Error: ${errorText}`);
@@ -89,17 +90,15 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 		toast.success("Address copied to clipboard!");
 	};
 
-	const handleUpdate = async () => {
-		await queryClient.invalidateQueries({ queryKey: ["fetchAccount", username] });
-		await queryClient.invalidateQueries({ queryKey: ["fetchTransactionHistory", username] });
-	};
-
 	return (
 		<div className="wallet-container">
 			<div className="address-section">
 				<span className="address-text">{account?.address || address}</span>
 				<button onClick={copyToClipboard} className="copy-btn">
 					Copy
+				</button>
+				<button onClick={syncData} className="sync-btn">
+					Sync
 				</button>
 			</div>
 
@@ -155,7 +154,6 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 						const date = tx?.timestamp
 							? new Date(parseInt(tx.timestamp) * 1000).toLocaleString()
 							: "Invalid date";
-
 						return (
 							<div key={tx?.note_id || idx} className={`transaction-box ${tx?.transaction_type === "input" ? "received" : "sent"}`}>
 								{tx?.transaction_type === "input" ? "Received" : "Sent"} {tx?.value} ETH{" "}

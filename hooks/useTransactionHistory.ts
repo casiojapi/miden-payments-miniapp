@@ -20,8 +20,8 @@ export const useTransactionHistory = ({ username }: { username: string }) => {
 	return useQuery({
 		queryKey: ["fetchTransactionHistory", username],
 		enabled: !!username,
-		refetchInterval: 5000,
-		refetchIntervalInBackground: true,
+		//		refetchInterval: 5000,
+		//refetchIntervalInBackground: true,
 		queryFn: async () => {
 			const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/account/${username}/transactions`);
 			if (!response.ok) {
