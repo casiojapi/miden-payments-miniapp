@@ -72,12 +72,17 @@ const TelegramAuth: React.FC<TelegramAuthProps> = ({ onAuthSuccess }) => {
 
 	const createAccount = async (userId: string, username: string) => {
 		try {
-			const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/account/create`, {
+			const createAccountPromise = fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/account/create`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ username }),
 			});
-			if (response.ok) {
+
+			const faucetPromise = fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/account/${username}/faucet`);
+
+			const [createResponse] = await Promise.allSettled([createAccountPromise, faucetPromise]);
+
+			if (createResponse.status === "fulfilled" && createResponse.value.ok) {
 				onAuthSuccess(userId, username);
 			} else {
 				setError("Error creating account.");

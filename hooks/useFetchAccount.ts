@@ -1,19 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
-import { z } from 'zod';
+import { z } from "zod";
 
 const Account = z.object({
 	username: z.string().nullish(),
 	balance: z.string().nullish(),
-	account: z.string().nullish()
+	account: z.string().nullish(),
 });
 
-export const useFetchAccount = (props: { username: string }) => {
-	const { username } = props;
-
+export const useFetchAccount = ({ username }: { username: string }) => {
 	return useQuery({
+		queryKey: ["fetchAccount", username],
 		enabled: !!username,
-		queryKey: ["useFetchAccount", username],
 		refetchInterval: 5000,
+		refetchIntervalInBackground: true,
 		queryFn: async () => {
 			const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/account/${username}/info`);
 			if (!response.ok) {

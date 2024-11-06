@@ -1,28 +1,22 @@
 import { useQuery } from "@tanstack/react-query";
-import { z } from 'zod';
+import { z } from "zod";
 
-const TxHistory = z.object({
-	transactions: z.array(
-		z.object({
-			note_id: z.string(),
-			acc_sender: z.string(),
-			acc_recipient: z.string(),
-			acc_recipient_user_id: z.string(),
-			faucet: z.string(),
-			value: z.string(),
-			timestamp: z.coerce.date(),
-			transaction_type: z.string(),
-		}).nullish()
-	)
-}
-);
+const Transaction = z.object({
+	note_id: z.string().nullish(),
+	acc_sender: z.string().nullish(),
+	acc_recipient: z.string().nullish(),
+	value: z.string().nullish(),
+	timestamp: z.string().nullish(),
+});
 
-export const useTransactionHistory = (props: { username: string }) => {
-	const { username } = props;
+const TransactionHistory = z.object({
+	transactions: z.array(Transaction).nullish(),
+});
 
+export const useTransactionHistory = ({ username }: { username: string }) => {
 	return useQuery({
+		queryKey: ["fetchTransactionHistory", username],
 		enabled: !!username,
-		queryKey: ["useTransactionHistory", username],
 		refetchInterval: 5000,
 		refetchIntervalInBackground: true,
 		queryFn: async () => {
@@ -30,9 +24,8 @@ export const useTransactionHistory = (props: { username: string }) => {
 			if (!response.ok) {
 				throw new Error(`Error fetching transaction history: ${response.statusText}`);
 			}
-
 			const data = await response.json();
-			return TxHistory.parse(data);
+			return TransactionHistory.parse(data);
 		},
 	});
 };

@@ -13,7 +13,7 @@ export default function Home() {
 		setUsername(tgUsername);
 		setIsAuthenticated(true);
 	};
-
+	console.log("USERNAME INDEXTSX: ", username);
 	return (
 		<div className="min-h-screen flex items-center justify-center bg-gray-100">
 			{!isAuthenticated ? (
