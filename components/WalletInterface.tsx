@@ -3,12 +3,14 @@ import { useFetchAccount } from "../hooks/useFetchAccount";
 import { useFetchUsernames } from "../hooks/useUsernames";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTransactionHistory } from "../hooks/useTransactionHistory";
+import { toast } from 'react-toastify';
 
 interface WalletInterfaceProps {
 	username: string;
+	address?: string;
 }
 
-export const WalletInterface: React.FC<WalletInterfaceProps> = ({ username }) => {
+export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, username }) => {
 	const [receiverInput, setReceiverInput] = useState("");
 	const [amount, setAmount] = useState("");
 	const [isFunding, setIsFunding] = useState(false);
@@ -29,10 +31,14 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ username }) =>
 	const faucetFund = async () => {
 		try {
 			setIsFunding(true);
+
+			toast.success("Faucet funding requested...");
 			await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/account/${username}/faucet`);
+
+			toast.success("Faucet funding received!");
 			refetchAccount();
 		} catch (error) {
-			alert("Faucet funding failed. Please try again.");
+			toast.error("Faucet funding failed. Please try again.");
 		} finally {
 			setIsFunding(false);
 		}
@@ -42,23 +48,23 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ username }) =>
 		const isUsername = receiverInput.startsWith('@');
 		const receiverUsername = isUsername ? receiverInput.substring(1) : null;
 
-		alert('Sending funds...');
+		toast.info('Sending funds...');
 		try {
 			setIsSending(true);
 			if (receiverUsername) {
 				const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/account/${username}/note/to/${receiverUsername}/asset/${amount}`);
 				if (response.ok) {
-					alert('Funds sent successfully!');
+					toast.success('Funds sent successfully!');
 					setReceiverInput('');
 					setAmount('');
 					handleUpdate();
 				} else {
 					const errorText = await response.text();
-					alert(`Error: ${errorText}`);
+					toast.error(`Error: ${errorText}`);
 				}
 			}
 		} catch (error) {
-			alert('An unexpected error occurred while sending funds.');
+			toast.error('An unexpected error occurred while sending funds.');
 			console.error(error);
 		} finally {
 			setIsSending(false);
@@ -80,12 +86,8 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ username }) =>
 	};
 
 	const copyToClipboard = () => {
-		if (account?.address) {
-			navigator.clipboard.writeText(account.address);
-			alert("Address copied to clipboard!");
-		} else {
-			alert("No address found to copy.");
-		}
+		navigator.clipboard.writeText(account?.address || "");
+		toast.success("Address copied to clipboard!");
 	};
 
 	const handleUpdate = async () => {
@@ -96,7 +98,7 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ username }) =>
 	return (
 		<div className="wallet-container">
 			<div className="address-section">
-				<span className="address-text">{account?.address || "Loading address..."}</span>
+				<span className="address-text">{account?.address || address}</span>
 				<button onClick={copyToClipboard} className="copy-btn">
 					Copy
 				</button>

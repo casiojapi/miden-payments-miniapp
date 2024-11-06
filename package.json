@@ -17,6 +17,7 @@
     "react-qr-reader": "^3.0.0-beta-1",
     "react-qr-scanner": "^1.0.0-alpha.11",
     "react-qrcode-scanner": "^1.2.4",
+    "react-toastify": "^10.0.6",
     "typescript": "^5.6.3",
     "zod": "^3.23.8"
   },

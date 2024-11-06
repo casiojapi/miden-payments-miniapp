@@ -1,6 +1,31 @@
 /*
 @import url('https://fonts.googleapis.com/css2?family=General+Sans:wght@400;500;600&display=swap');
 */
+.Toastify__toast {
+  background-color: #2d2d44; /* Main background color */
+  color: #e5e5f7; /* Text color */
+  font-family: 'General Sans', sans-serif;
+}
+
+.Toastify__toast--success {
+  background-color: #0f3324; /* Success background */
+  color: #ccffcc;
+}
+
+.Toastify__toast--error {
+  background-color: #330f0f; /* Error background */
+  color: #ffcccc;
+}
+
+.Toastify__toast--info {
+  background-color: #5e3c7d; /* Info background */
+  color: #d1c4e9;
+}
+
+.Toastify__progress-bar {
+  background-color: #7b4ba0; /* Progress bar color */
+}
+
 .update-section {
 	margin: 15px 0;
 	text-align: center;
@@ -176,6 +201,7 @@
     display: flex;
     align-items: center;
     font-size: 0.9rem;
+    margin: 0.5em;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
