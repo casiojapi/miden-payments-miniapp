@@ -57,7 +57,6 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 					toast.success('Funds sent successfully!');
 					setReceiverInput('');
 					setAmount('');
-					handleUpdate();
 				} else {
 					const errorText = await response.text();
 					toast.error(`Error: ${errorText}`);
