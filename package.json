@@ -19,6 +19,7 @@
     "react-qrcode-scanner": "^1.2.4",
     "react-toastify": "^10.0.6",
     "typescript": "^5.6.3",
+    "ui": "shadcn/ui",
     "zod": "^3.23.8"
   },
   "scripts": {
