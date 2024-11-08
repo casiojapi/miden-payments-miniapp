@@ -38,7 +38,7 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 	}, [fetchTransactionHistory]);
 
 	useEffect(() => {
-		if (account?.balance && account.balance !== "0 ETH") {
+		if (account?.balance) {
 			cachedBalance.current = account.balance;
 			setIsFunding(false);
 		}
@@ -130,7 +130,7 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 			</div>
 
 			<div className="balance-section">
-				<h2>{accountLoading ? "Loading..." : (account?.balance || cachedBalance.current || "0 ETH")}</h2>
+				<h2>{cachedBalance.current || account?.balance || "0 ETH"}</h2>
 			</div>
 
 			<div className="update-section">
