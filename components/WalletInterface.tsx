@@ -45,7 +45,7 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 	}, [account?.balance]);
 
 	useEffect(() => {
-		if (txHistory?.transactions?.length) {
+		if (txHistory?.transactions && txHistory.transactions.length > 0) {
 			const newTransactions = txHistory.transactions.filter(
 				(tx) => !cachedTransactions.current.find((cachedTx) => cachedTx.note_id === tx.note_id)
 			);
@@ -55,6 +55,7 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 				cachedTransactions.current.sort((a, b) => parseInt(b.timestamp) - parseInt(a.timestamp));
 			}
 		}
+		// If txHistory.transactions is an empty array, we don't update cachedTransactions
 	}, [txHistory]);
 
 	const faucetFund = async () => {
@@ -185,7 +186,7 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 								: "Invalid date";
 							return (
 								<div key={tx?.note_id || idx} className={`transaction-box ${tx?.transaction_type === "input" ? "received" : "sent"}`}>
-									{tx?.transaction_type === "input" ? "Received" : "Sent"} {tx?.value}{" "}
+									{tx?.transaction_type === "input" ? "Received" : "Sent"} {tx?.value} ETH{" "}
 									{tx?.transaction_type === "input" ? "from" : "to"}{" "}
 									{tx?.transaction_type === "input" ? tx?.acc_sender : tx?.acc_recipient} on {date}
 								</div>
