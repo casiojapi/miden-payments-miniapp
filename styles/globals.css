@@ -1,31 +1,40 @@
-/*
-@import url('https://fonts.googleapis.com/css2?family=General+Sans:wght@400;500;600&display=swap');
-*/
 .Toastify__toast {
   background-color: #2d2d44; /* Main background color */
   color: #e5e5f7; /* Text color */
   font-family: 'General Sans', sans-serif;
+  border-radius: 20px; /* Apply rounded corners */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* Add a shadow for the "bubble" effect */
+  padding: 16px; /* Add some spacing inside the toast */
+  border: 1px solid rgba(123, 75, 160, 0.5); /* Optional: subtle border */
 }
 
+/* Specific styles for success toasts */
 .Toastify__toast--success {
   background-color: #0f3324; /* Success background */
   color: #ccffcc;
+  border: 1px solid rgba(204, 255, 204, 0.5); /* Subtle border for success toasts */
 }
 
+/* Specific styles for error toasts */
 .Toastify__toast--error {
   background-color: #330f0f; /* Error background */
   color: #ffcccc;
+  border: 1px solid rgba(255, 204, 204, 0.5); /* Subtle border for error toasts */
 }
 
+/* Specific styles for info toasts */
 .Toastify__toast--info {
   background-color: #5e3c7d; /* Info background */
   color: #d1c4e9;
+  border: 1px solid rgba(209, 196, 233, 0.5); /* Subtle border for info toasts */
 }
 
+/* Override the progress bar styles */
 .Toastify__progress-bar {
   background-color: #7b4ba0; /* Progress bar color */
+  border-radius: 20px; /* Rounded progress bar */
+  height: 4px; /* Slim progress bar */
 }
-
 .update-section {
 	margin: 15px 0;
 	text-align: center;
@@ -220,4 +229,71 @@
     text-align: center;
     padding: 15px;
     font-size: 0.95rem;
+}
+
+.auth-overlay {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(10, 10, 20, 0.9); /* Match wallet-container */
+	z-index: 1000;
+}
+
+.auth-container {
+	text-align: center;
+	background-color: #2d2d44; /* Match suggestions list background */
+	color: #e5e5f7; /* Match general text color */
+	padding: 30px;
+	border-radius: 12px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+	font-family: "General Sans", sans-serif;
+}
+
+.loading-spinner {
+	width: 50px;
+	height: 50px;
+	border: 5px solid rgba(255, 255, 255, 0.3);
+	border-top-color: #7b4ba0; /* Match progress bar color */
+	border-radius: 50%;
+	animation: spin 1s linear infinite;
+	margin: 0 auto 15px;
+}
+
+@keyframes spin {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+.auth-text {
+	font-size: 1.2rem;
+}
+
+.error-text {
+	color: #ffcccc; /* Match error toast */
+	font-weight: 600;
+}
+
+.retry-button {
+	margin-top: 20px;
+	padding: 10px 20px;
+	font-size: 1rem;
+	color: #e0e0e0;
+	background-color: #5e3c7d; /* Match button styles */
+	border: none;
+	border-radius: 6px;
+	cursor: pointer;
+	transition: background-color 0.3s ease-in-out;
+}
+
+.retry-button:hover {
+	background-color: #3e2d5d;
 }

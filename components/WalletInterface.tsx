@@ -58,6 +58,16 @@ export const WalletInterface: React.FC<WalletInterfaceProps> = ({ address, usern
 		// If txHistory.transactions is an empty array, we don't update cachedTransactions
 	}, [txHistory]);
 
+	useEffect(() => {
+		const initializeTransactions = async () => {
+			if (!accountLoading && account) {
+				await fetchTransactionHistory();
+			}
+		};
+
+		initializeTransactions();
+	}, [account, accountLoading, fetchTransactionHistory]);
+
 	const faucetFund = async () => {
 		try {
 			setIsFunding(true);
